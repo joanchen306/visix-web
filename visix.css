@@ -1,0 +1,63 @@
+body {
+	background: url(images/lobby-screen.jpg); 
+	background-size: 1920px 1080px;
+	background-repeat: no-repeat; 
+	margin-top: 0px; 
+	margin-left: 0px;
+}
+
+#calendar {
+	margin-top: 320px; 
+	margin-left: 60px; 
+	height: 500px; 
+	width: 424px; 
+	background-color:#00964E; 
+	z-index: 1; 
+	padding-top: 8px;
+}
+
+#news-div {
+	margin-top: 94px; 
+	margin-left: 192px; 
+	height: 82px; 
+	width: 1650px; 
+	background-color:#00964E; 
+	z-index: 2;
+}
+
+#news-font {
+	font-family: 'HelveticaNeue-UltraLight', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif; 
+	color: white; 
+	font-size:38px;
+}
+
+.timeblock {
+	margin-left: 15px; 
+	width: 390px; 
+	height: 36px;
+}
+
+.timeblock h2 {
+	font-family: 'HelveticaNeue-UltraLight', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif; 
+	color: white;
+}
+
+.eventblock {
+
+}
+
+.eventblock h3 {
+
+}
+
+.trafficblock {
+
+}
+
+.trafficblock h1{
+	
+}
+
+.weatherblock {
+	
+}

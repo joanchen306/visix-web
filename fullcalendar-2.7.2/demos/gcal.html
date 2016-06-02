@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8' />
+<link href='../fullcalendar.css' rel='stylesheet' />
+<link href='../fullcalendar.print.css' rel='stylesheet' media='print' />
+<script src='../lib/moment.min.js'></script>
+<script src='../lib/jquery.min.js'></script>
+<script src='../fullcalendar.min.js'></script>
+<script src='../gcal.js'></script>
+<script>
+
+	$(document).ready(function() {
+	
+		$('#calendar').fullCalendar({
+			googleCalendarApiKey: 'AIzaSyB1j-wYGG3Da_6Bi3HrZUYwv2agnrT2tEc',
+			events: 'v5q5mlog7n393me926h4nsige8@group.calendar.google.com'	
+		});
+		
+	});
+
+</script>
+<style>
+
+	body {
+		margin: 40px 10px;
+		padding: 0;
+		font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+		font-size: 14px;
+	}
+		
+	#loading {
+		display: none;
+		position: absolute;
+		top: 10px;
+		right: 10px;
+	}
+
+	#calendar {
+		max-width: 900px;
+		margin: 0 auto;
+	}
+
+</style>
+</head>
+<body>
+
+	<div id='loading'>loading...</div>
+
+	<div id='calendar'></div>
+
+</body>
+</html>
