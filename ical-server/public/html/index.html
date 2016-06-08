@@ -1,0 +1,246 @@
+<html>
+  <head>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="/vendors/bootstrap-3.3.6-dist/js/bootstrap.min.js"> </script>
+    <script type="text/javascript" src="/vendors/FeedEk-master/js/FeedEk.js"></script>
+
+    <link rel='stylesheet' href='/vendors/bootstrap-3.3.6-dist/css/bootstrap.min.css'> </link>
+    <link rel='stylesheet' href='/css/style.css'></link>
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
+  </head>
+  <body>
+  <div id="clock-outer"> 
+ 	  <div id="clock">
+ 	    <h1> </h1>
+ 	  </div>
+  </div>
+  <div id="mid-outer">
+	  <div id="mid-container" class="row">
+		  <div id="calendar-div" class="col-md-2 col-xs-3">
+		  	<div id="cal-inner"></div>
+		  </div>
+		  <div id="traffic-div" class="col-md-2 col-xs-3">
+		  	<div></div>
+		  	<hr>
+		  	<div></div>
+		  </div>
+		  <div id="weather-div" class="col-md-2 col-xs-3">
+		  	<div>
+		  		<div id="w-today"> 
+		  		  <h2> TODAY </h2>
+		  		  <div class="row">
+			  		  <div class="col-xs-6" id="w-today-left">
+			  		  </div>
+			  		  <div class="col-xs-6" id="w-today-right">
+			  		  </div>
+			  	   </div> <!-- end of top row of weather -->
+		  		</div> <!-- end of today's weather block-->
+		  		<hr>
+		  		<div class="row" id="w-other">
+		  		  <div class="col-xs-6" style="border-right: 2px solid white;" id="w-day2">
+		  		  </div>
+		  		  <div class="col-xs-6" id="w-day3">
+		  		  </div>
+		  	   </div>
+		  	</div>
+		  </div><!-- end of weather container -->
+	  </div>
+  </div>
+  <div id="news-outer">
+	  <div id="news-div">
+		  <marquee scrollamount="15">
+			<div id="news-font">
+			</div>
+		  </marquee>
+	  </div>
+  </div>
+  </body>
+  <script>
+
+	$(document).ready(function() {
+		updateClock();
+
+		$('#news-font').FeedEk({
+		    FeedUrl : 'http://feeds.nytimes.com/nyt/rss/HomePage',
+		  });
+
+
+		var cal_settings = {
+		  "url": "http://localhost:3000/events",
+		  "method": "GET"
+		}
+
+		$.ajax(cal_settings).done(function (response) {
+		  var times = Object.keys(response);
+		  for (var t = 0; t < times.length; t++) {
+		  	var id = 'timeBlock' + t;
+		  	$("#cal-inner").append('<div id="' + id + '"></div>');
+			$('#' + id).addClass("timeblock");
+			$('#' + id).append('<h2 style="text-align: center; color: white; padding-top: 4px;">' + times[t] + '</h2>');
+			if(response[times[t]].length == 1) {
+				var id = 'eventBlock' + t;
+				$('#calendar-div').find("div").append('<div id="' + id + '"></div>');
+				$('#' + id).addClass("eventblock");
+				$('#' + id).append('<h3">' + response[times[t]] + '</h3>');
+			} else {
+				for(var i = 0; i < response[times[t]].length; i++) {
+					var e_id = 'eventBlock' + t + '-' + i;
+					console.log(id);
+					$("#cal-inner").append('<div id="' + e_id + '"></div>');
+					$('#' + e_id).addClass("eventblock");
+					$('#' + e_id).append('<h3 style="text-align: center; color: white;">' + response[times[t]][i].name + '</h3>');
+					if(i < response[times[t]].length - 1) {
+						$("#cal-inner").append('<hr>');
+					}
+				}
+			}
+		  }
+		});
+
+		var weather_settings = {
+		  "url": "http://localhost:3000/weather",
+		  "method": "GET"
+		}
+
+		$.ajax(weather_settings).done(function(res) {
+			var today = res.today;
+			$('#w-today-left').append('<img src="/images/' + today.conditions + '.png"></img><h4>' + today.conditions.toUpperCase() + '</h4><h4> PRECIP:'+ today.chance_of_rain +'% </h4>');
+			$('#w-today-right').append('<h1 id="curr-temp">'+  Math.floor(today.curr_temp) +'&deg; </h1><h3> '+ today.temp_max + '&deg;/' + today.temp_min + '&deg; </h3>');
+			var day2 = res.tomorrow;
+			if(day2.day == "Thursday") {
+				day2.day = day2.day.slice(0,5).toUpperCase();
+			} else {
+				day2.day = day2.day.slice(0,3).toUpperCase();
+			}
+			$('#w-day2').append('<h2>'+ day2.day +'</h2><img src="/images/' + day2.conditions + '.png"></img><h4>'+ day2.temp_max +'&deg;/' + day2.temp_min +'&deg; </h4><h5> PRECCIP:'+ day2.chance_of_rain +'% </h5>');
+			var day3 = res.next_day;
+			if(day3.day == "Thursday") {
+				day3.day = day3.day.slice(0,5).toUpperCase();
+			} else {
+				day3.day = day3.day.slice(0,3).toUpperCase();
+			}
+			$('#w-day3').append('<h2>' + day3.day +'</h2><img src="/images/' + day2.conditions + '.png"></img><h4>'+ day3.temp_max +'&deg;/' + day3.temp_min +'&deg; </h4><h5> PRECCIP:'+ day3.chance_of_rain +'% </h5>');
+
+		var myVar = setInterval(function(){ updateClock() }, 1000 * 30);
+
+		var hour_interval = setInterval(function(){ updateAll() }, 1000 * 60 * 60);
+
+		var thirty_interval = setInterval(function(){ updateTemp()}, 1000 * 60 * 30);
+
+
+
+	});
+
+	function updateClock() {
+		    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+		    var days = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
+
+		    var d = new Date();
+		    var t = d.toLocaleTimeString();
+		    var month = months[d.getMonth()].toUpperCase();
+		    var date = d.getDate();
+		    var day = days[d.getDay()];
+
+		    var re1 = /[0-9]+:[0-9]+/i;
+		    var re2 = /[A-P]+/i;
+
+
+		    var t_str = day+ ", " + month + " " + date + ' <i class="fa fa-circle" aria-hidden="true"></i> ' + t.match(re1) + " " + t.match(re2);
+		    var el = $("#clock").find("h1");
+		    el.empty();
+		    el.append(t_str);
+
+	}
+
+	function updateTemp() {
+		var current_temp = {
+		  "url": "http://localhost:3000/current_temp",
+		  "method": "GET"
+		}
+
+		$.ajax(current_temp).done(function(res) {
+			$("#curr-temp").innerHTML = Math.floor(res + '&deg;');
+		});
+
+	}
+
+	function updateNews() {
+		$('#news-font').FeedEk({
+		    FeedUrl : 'http://feeds.nytimes.com/nyt/rss/HomePage',
+		 });
+	}
+
+	function updateAll() {
+		$('#news-font').FeedEk({
+		    FeedUrl : 'http://feeds.nytimes.com/nyt/rss/HomePage',
+		  });
+
+
+		var cal_settings = {
+		  "url": "http://localhost:3000/events",
+		  "method": "GET"
+		}
+
+		$.ajax(cal_settings).done(function (response) {
+		  $('#calendar-div').find("div").empty();
+		  var times = Object.keys(response);
+		  for (var t = 0; t < times.length; t++) {
+		  	var id = 'timeBlock' + t;
+		  	$("#cal-inner").append('<div id="' + id + '"></div>');
+			$('#' + id).addClass("timeblock");
+			$('#' + id).append('<h2 style="text-align: center; color: white; padding-top: 4px;">' + times[t] + '</h2>');
+			if(response[times[t]].length == 1) {
+				var id = 'eventBlock' + t;
+				$('#calendar-div').find("div").append('<div id="' + id + '"></div>');
+				$('#' + id).addClass("eventblock");
+				$('#' + id).append('<h3">' + response[times[t]] + '</h3>');
+			} else {
+				for(var i = 0; i < response[times[t]].length; i++) {
+					var e_id = 'eventBlock' + t + '-' + i;
+					console.log(id);
+					$("#cal-inner").append('<div id="' + e_id + '"></div>');
+					$('#' + e_id).addClass("eventblock");
+					$('#' + e_id).append('<h3 style="text-align: center; color: white;">' + response[times[t]][i].name + '</h3>');
+					if(i < response[times[t]].length - 1) {
+						$("#cal-inner").append('<hr>');
+					}
+				}
+			}
+		  }
+		});
+
+		var weather_settings = {
+		  "url": "http://localhost:3000/weather",
+		  "method": "GET"
+		}
+
+		$.ajax(weather_settings).done(function(res) {
+			var today = res.today;
+			$('#w-today-left').empty();
+			$('#w-today-left').append('<img src="/images/' + today.conditions + '.png"></img><h4>' + today.conditions.toUpperCase() + '</h4><h4> PRECIP:'+ today.chance_of_rain +'% </h4>');
+			$('#w-today-right').empty();
+			$('#w-today-right').append('<h1 id="curr-temp">'+  Math.floor(today.curr_temp) +'&deg; </h1><h3> '+ today.temp_max + '&deg;/' + today.temp_min + '&deg; </h3>');
+			var day2 = res.tomorrow;
+			if(day2.day == "Thursday") {
+				day2.day = day2.day.slice(0,5).toUpperCase();
+			} else {
+				day2.day = day2.day.slice(0,3).toUpperCase();
+			}
+			$('#w-day2').empty();
+			$('#w-day2').append('<h2>'+ day2.day +'</h2><img src="/images/' + day2.conditions + '.png"></img><h4>'+ day2.temp_max +'&deg;/' + day2.temp_min +'&deg; </h4><h5> PRECIP:'+ day2.chance_of_rain +'% </h5>');
+			var day3 = res.next_day;
+			if(day3.day == "Thursday") {
+				day3.day = day3.day.slice(0,5).toUpperCase();
+			} else {
+				day3.day = day3.day.slice(0,3).toUpperCase();
+			}
+			$('#w-day3').empty();
+			$('#w-day3').append('<h2>' + day3.day +'</h2><img src="/images/' + day2.conditions + '.png"></img><h4>'+ day3.temp_max +'&deg;/' + day3.temp_min +'&deg; </h4><h5> PRECIP:'+ day3.chance_of_rain +'% </h5>');
+
+		});
+	}
+});
+
+
+	</script>
+</html>

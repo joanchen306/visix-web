@@ -1,0 +1,232 @@
+body {
+	background: url(/images/lobby-screen.jpg);
+	background-size: 100% 100%;
+	background-repeat: no-repeat;
+	background-color: #C4C5C7;
+	background-position: center top;
+	font-size: 100%;
+}
+
+hr {
+	border-color: white;
+	border-width: 2px;
+}
+
+h1 {
+	font-family:'HelveticaNeue-UltraLight', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif; 
+	color: white;
+	text-align: center;
+	font-size: 900%;
+}
+
+h2 {
+	font-family: 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif; 
+	color: white;
+	text-align: center;
+	margin:0 !important;
+	font-size: 250%;
+	letter-spacing: 2px;
+}
+
+h3 {
+	font-family: 'HelveticaNeue-UltraLight', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif;
+	letter-spacing: 2px;
+	text-align: center; 
+	color: white;
+	font-size: 210%;
+	line-height: 150%;
+}
+
+h4 {
+	font-family: 'HelveticaNeue-UltraLight', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif;
+	color: white;
+	text-align: center;
+	letter-spacing: 2px;
+}
+
+h5 {
+	font-family: 'HelveticaNeue-UltraLight', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif;
+	color: white;
+	text-align: center;
+	letter-spacing: 2px;
+}
+
+#clock-outer div {
+	height:10%;
+	padding-right: 5%
+}
+
+#clock h1 {
+	text-align: right !important;
+	font-size: 700% !important;
+	font-family: 'HelveticaNeue-Thin', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif; 
+	color: #575759 !important;
+}
+
+#clock h1 i {
+	font-size: 1.5vw !important;
+	margin-left: 0.9%;
+	vertical-align: middle !important;
+}
+
+#clock-outer::before {
+	display: block;
+    content: "";
+	height: 5%;
+}
+
+#clock-outer::after{
+	display: block;
+    content: "";
+	height: 5%;
+}
+
+#mid-outer::before {
+    display: block;
+    content: "";
+    height: 8%;
+}
+
+#mid-outer::after {
+    display: block;
+    content: "";
+    height: 0%;
+}
+
+#mid-container {
+	margin: 0;
+	margin-left: 3%;
+	width:93.98%;
+
+}
+
+#mid-container div div{
+	height: 43.58%;
+}
+
+#calendar-div {
+	padding: 1.0%;
+	width: 24.14%;
+	margin-right: 10%;
+}
+
+.timeblock {
+	background-color: #0063A7;
+	height: 7% !important;
+}
+
+.eventblock {
+	height: auto !important;
+}
+
+
+#traffic-div {
+	padding: 0.5%;
+	width: 31.72%;
+	margin-right: 10%
+}
+
+#traffic-div div{
+	height: 5% !important;
+}
+
+#weather-div {
+	padding-left: 2%;
+	padding-right: 2%;
+	padding-top: 0.5%;
+	width: 24.14%;
+	margin-right: 0;
+	margin-bottom: 0.7%;
+}
+
+#weather-div div {
+	height: 45% !important;
+}
+
+#w-today {
+	height: 43% !important;
+}
+
+#w-today img {
+	display:block;
+	max-width: 76%;
+    height: auto;
+    margin-left: 10%;
+   	line-height: 100% !important;
+}
+
+#w-today div {
+	height: 90% !important;
+}
+
+#w-today h3 {
+	margin-top: 15%;
+	font-size: 300% !important;
+}
+
+#w-other div {
+	padding-top: 5%;
+	height:100% !important;
+}
+
+#w-other div img {
+	display:block;
+	width: auto;
+    max-height: 40%;
+    padding-left: 25%;
+    margin-top: 9%;
+    margin-bottom: 5%
+}
+
+#w-other div h4{
+    padding-left: 7%;
+}
+
+#w-other div h5{
+    padding-left: 7%;
+}
+
+
+#news-div {
+	height: 6%; 
+	background-color:#00964E; 
+	z-index: 2;
+	margin-top: 0.8%;
+}
+
+#news-div marquee {
+	height: 100%;
+}
+
+#news-outer {
+	margin-left: 10.15%;
+	width: 86%; 
+}
+
+#news-outer::before {
+    display: block;
+    content: "";
+    height: 8.4%;
+}
+
+#news-outer::after {
+    display: block;
+    content: "";
+    height: 6%;
+}
+
+#news-font {
+	font-family: 'HelveticaNeue-UltraLight', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif; 
+	color: white; 
+    font-size: 2.3vw;
+	height: 100%;
+	letter-spacing: 2px;
+}
+
+#news-font i {
+	font-size: 1.4vw !important;
+	margin-right: 1.5%;
+	margin-left: 1.5%;
+	position:relative;
+	top:-5%;
+}

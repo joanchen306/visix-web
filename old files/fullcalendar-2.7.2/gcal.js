@@ -204,10 +204,7 @@ function appendTimeBlock(time, index) {
 }
 
 function appendEventBlock(event, index) {
-	var id = 'eventBlock' + index;
-	$('#calendar').append('<div id="' + id + '"></div>');
-	$('#' + id).addClass("eventblock");
-	$('#' + id).append('<h3 style="text-align: center; color: white;">' + event + '</h3>');
+	c
 }
 
 
