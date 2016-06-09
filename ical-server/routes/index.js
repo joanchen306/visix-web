@@ -3,12 +3,30 @@ var router = express.Router();
 var ical = require('ical');
 var http = require("http");
 var https = require("https");
+var path = require("path")
 
 var weather = {};
-var traffic = {"airport": {}, };
+var traffic = { 
+  "airport" : 
+    {"now": {} , "in_30": {}, "img": {}},
+  "buckhead": 
+    {"now": {} , "in_30": {}, "img": {}},
+  "decatur": 
+    {"now": {} , "in_30": {}, "img": {}},
+  "smyrna": 
+    {"now": {} , "in_30": {}, "img": {}},
+  "alpharetta": 
+    {"now": {} , "in_30": {}, "img": {}},
+  "marietta": 
+    {"now": {} , "in_30": {}, "img": {}},
+
+  };
 
 router.get('/', function(req, res, next) {
-  res.sendfile('./public/html/index.html');
+  var d = new Date();
+  console.log("GET @ " + d.getHours() + ":" + d.getMinutes());
+  var dir = path.join(__dirname, '../');
+  res.sendFile(dir + 'public/html/index.html');
 });
 
 /* GET home page. */
@@ -20,9 +38,9 @@ router.get('/events', function(req, res, next) {
   ical.fromURL(cal_url, {}, function(err, data) {
 
     var dataJSON = {"ALL DAY" : []}
-    var curr_month = new Date().getUTCMonth();
-    var curr_date = new Date().getUTCDate();
-    var curr_year = new Date().getUTCFullYear();
+    var curr_month = new Date().getMonth();
+    var curr_date = new Date().getDate();
+    var curr_year = new Date().getFullYear();
     for (var k in data){
       if (data.hasOwnProperty(k)) {
         var ev = data[k]
@@ -133,9 +151,6 @@ router.use('/weather', function(req, res, next) {
         "day" : next_day.date.weekday
        }
 
-
-      console.log(today.high.fahrenheit + "/" + today.low.fahrenheit);
-      console.log(today.conditions + "--" + today.pop + "%");
       next();
     });
   });
@@ -162,7 +177,6 @@ router.get('/weather', function(req, res, next) {
       response.on("end", function () {
         var body = Buffer.concat(chunks);
         data = JSON.parse(body.toString());
-        console.log('getting current temp');
         weather["today"]["curr_temp"] = data.current_observation.temp_f;
         res.json(weather);
       });
@@ -189,17 +203,24 @@ router.get('/current_temp', function(req, res, next) {
       response.on("end", function () {
         var body = Buffer.concat(chunks);
         data = JSON.parse(body.toString());
-        res.send(data.current_observation.temp_f.toString());
+        var d = new Date();
+        console.log(d.getHours() + ":" + d.getMinutes() + "  Temp: " + data.current_observation.temp_f.toString());
+        res.json({"temp": data.current_observation.temp_f.toString()});
       });
     });
 
     request.end();
 });
 
+var re_75 = /75/;
+var re_85 = /85/;
+var re_400 = /400/;
 
-//get airport via I-75
+
+
+//get airport via I-75 NOW
 router.use('/traffic', function(req, res, next) {
-      var options = {
+  var options = {
       "method": "GET",
       "hostname": "maps.googleapis.com",
       "port": null,
@@ -215,7 +236,54 @@ router.use('/traffic', function(req, res, next) {
 
       response.on("end", function () {
         var body = Buffer.concat(chunks);
-        console.log(body.toString());
+        var data = JSON.parse(body.toString());
+        traffic.airport.now["time"] = data.routes[0].legs[0].duration_in_traffic.value;
+        traffic.airport.now["route"] = data.routes[0].summary;
+        if(re_75.test(data.routes[0].summary)) {
+          console.log("Got 75: " + data.routes[0].summary);
+          traffic.airport["img"] = "/I-75.png";
+        } else if(re_85.test(data.routes[0].summary)) {
+          console.log("Got 85: " + data.routes[0].summary);
+          traffic.airport["img"] = "/I-85.png";
+        } else if(re_400.test(data.routes[0].summary)) {
+          console.log("Got 400: " + data.routes[0].summary);
+          traffic.airport["img"] = "/GA-400.png";
+        } else {
+          traffic.airport["img"] = "/street.png";
+        }
+        next();
+      });
+    });
+
+  request.end();
+
+});
+
+//get airport via I-75 in 30 min
+router.use('/traffic', function(req, res, next) {
+
+  var d = new Date();
+  var sec = (d.getTime()*1000) + (30*60);
+  var options = {
+      "method": "GET",
+      "hostname": "maps.googleapis.com",
+      "port": null,
+      "path": "/maps/api/directions/json?origin=33.7775142%2C-84.3893051&destination=33.6408628%2C-84.44437920000001&departure_time=" 
+          + sec + "&key=AIzaSyB1j-wYGG3Da_6Bi3HrZUYwv2agnrT2tEc"
+    };
+
+    var request = https.request(options, function (response) {
+      var chunks = [];
+
+      response.on("data", function (chunk) {
+        chunks.push(chunk);
+      });
+
+      response.on("end", function () {
+        var body = Buffer.concat(chunks);
+        var data = JSON.parse(body.toString());
+        traffic.airport.in_30["time"] = data.routes[0].legs[0].duration_in_traffic.value;
+        traffic.airport.in_30["route"] = data.routes[0].summary;
         next();
       });
     });
@@ -225,8 +293,8 @@ router.use('/traffic', function(req, res, next) {
 });
 
 
-//get buckhead via I-75
-router.get('/traffic', function(req, res, next) {
+//get buckhead NOW
+router.use('/traffic', function(req, res, next) {
   var options = {
     "method": "GET",
     "hostname": "maps.googleapis.com",
@@ -243,9 +311,338 @@ router.get('/traffic', function(req, res, next) {
 
     response.on("end", function () {
       var body = Buffer.concat(chunks);
-      console.log(body.toString());
+      var data = JSON.parse(body.toString());
+      traffic.buckhead.now["time"] = data.routes[0].legs[0].duration_in_traffic.value;
+      traffic.buckhead.now["route"] = data.routes[0].summary;
+      if(re_75.test(data.routes[0].summary)) {
+          traffic.buckhead["img"] = "/I-75.png";
+        } else if(re_85.test(data.routes[0].summary)) {
+          traffic.buckhead["img"] = "/I-85.png";
+        } else if(re_400.test(data.routes[0].summary)) {
+          traffic.buckhead["img"] = "/GA-400.png";
+        } else {
+          traffic.buckhead["img"] = "/street.png";
+        }
+      next();
     });
   });
+
+  request.end();
+
+});
+
+//get buckhead in 30 min
+router.use('/traffic', function(req, res, next) {
+
+  var d = new Date();
+  var sec = (d.getTime()*1000) + (30*60);
+  var options = {
+      "method": "GET",
+      "hostname": "maps.googleapis.com",
+      "port": null,
+      "path": "/maps/api/directions/json?origin=33.7775142%2C-84.3893051&destination=33.8476821%2C-84.3681861&departure_time=" 
+          + sec + "&key=AIzaSyB1j-wYGG3Da_6Bi3HrZUYwv2agnrT2tEc"
+    };
+
+    var request = https.request(options, function (response) {
+      var chunks = [];
+
+      response.on("data", function (chunk) {
+        chunks.push(chunk);
+      });
+
+      response.on("end", function () {
+        var body = Buffer.concat(chunks);
+        var data = JSON.parse(body.toString());
+        traffic.buckhead.in_30["time"] = data.routes[0].legs[0].duration_in_traffic.value;
+        traffic.buckhead.in_30["route"] = data.routes[0].summary;
+        next();
+      });
+    });
+
+  request.end();
+
+});
+
+//Studio tp Decatur NOW
+router.use('/traffic', function(req, res, next) {
+  var options = {
+    "method": "GET",
+    "hostname": "maps.googleapis.com",
+    "port": null,
+    "path": "https://maps.googleapis.com/maps/api/directions/json?origin=33.7775142,-84.3893051&destination=33.776700,-84.293476&departure_time=now&key=AIzaSyB1j-wYGG3Da_6Bi3HrZUYwv2agnrT2tEc"
+  }
+
+  var request = https.request(options, function (response) {
+    var chunks = [];
+
+    response.on("data", function (chunk) {
+      chunks.push(chunk);
+    });
+
+    response.on("end", function () {
+      var body = Buffer.concat(chunks);
+      var data = JSON.parse(body.toString());
+      traffic.decatur.now["time"] = data.routes[0].legs[0].duration_in_traffic.value;
+      traffic.decatur.now["route"] = data.routes[0].summary;
+      if(re_75.test(data.routes[0].summary)) {
+          traffic.decatur["img"] = "/I-75.png";
+        } else if(re_85.test(data.routes[0].summary)) {
+          traffic.decatur["img"] = "/I-85.png";
+        } else if(re_400.test(data.routes[0].summary)) {
+          traffic.decatur["img"] = "/GA-400.png";
+        } else {
+          traffic.decatur["img"] = "/street.png";
+        }
+      next();
+    });
+  });
+
+  request.end();
+
+});
+
+//get decatur in 30 min
+router.use('/traffic', function(req, res, next) {
+
+  var d = new Date();
+  var sec = (d.getTime()*1000) + (30*60);
+  var options = {
+      "method": "GET",
+      "hostname": "maps.googleapis.com",
+      "port": null,
+      "path": "/maps/api/directions/json?origin=33.7775142%2C-84.3893051&destination=33.776700,-84.293476&departure_time=" 
+          + sec + "&key=AIzaSyB1j-wYGG3Da_6Bi3HrZUYwv2agnrT2tEc"
+    };
+
+    var request = https.request(options, function (response) {
+      var chunks = [];
+
+      response.on("data", function (chunk) {
+        chunks.push(chunk);
+      });
+
+      response.on("end", function () {
+        var body = Buffer.concat(chunks);
+        var data = JSON.parse(body.toString());
+        traffic.decatur.in_30["time"] = data.routes[0].legs[0].duration_in_traffic.value;
+        traffic.decatur.in_30["route"] = data.routes[0].summary;
+        next();
+      });
+    });
+
+  request.end();
+
+});
+
+//Studio to Smyrna NOW
+router.use('/traffic', function(req, res, next) {
+  var options = {
+    "method": "GET",
+    "hostname": "maps.googleapis.com",
+    "port": null,
+    "path": "https://maps.googleapis.com/maps/api/directions/json?origin=33.7775142,-84.3893051&destination=33.884076,-84.514536&departure_time=now&key=AIzaSyB1j-wYGG3Da_6Bi3HrZUYwv2agnrT2tEc"
+  }
+
+  var request = https.request(options, function (response) {
+    var chunks = [];
+
+    response.on("data", function (chunk) {
+      chunks.push(chunk);
+    });
+
+    response.on("end", function () {
+      var body = Buffer.concat(chunks);
+      var data = JSON.parse(body.toString());
+      traffic.smyrna.now["time"] = data.routes[0].legs[0].duration_in_traffic.value;
+      traffic.smyrna.now["route"] = data.routes[0].summary;
+      if(re_75.test(data.routes[0].summary)) {
+          traffic.smyrna["img"] = "/I-75.png";
+        } else if(re_85.test(data.routes[0].summary)) {
+          traffic.smyrna["img"] = "/I-85.png";
+        } else if(re_400.test(data.routes[0].summary)) {
+          traffic.smyrna["img"] = "/GA-400.png";
+        } else {
+          traffic.smyrna["img"] = "/street.png";
+        }
+      next();
+    });
+  });
+
+  request.end();
+
+});
+
+//get smryna in 30 min
+router.use('/traffic', function(req, res, next) {
+
+  var d = new Date();
+  var sec = (d.getTime()*1000) + (30*60);
+  var options = {
+      "method": "GET",
+      "hostname": "maps.googleapis.com",
+      "port": null,
+      "path": "/maps/api/directions/json?origin=33.7775142%2C-84.3893051&destination=33.884076,-84.514536&departure_time=" 
+          + sec + "&key=AIzaSyB1j-wYGG3Da_6Bi3HrZUYwv2agnrT2tEc"
+    };
+
+    var request = https.request(options, function (response) {
+      var chunks = [];
+
+      response.on("data", function (chunk) {
+        chunks.push(chunk);
+      });
+
+      response.on("end", function () {
+        var body = Buffer.concat(chunks);
+        var data = JSON.parse(body.toString());
+        traffic.smyrna.in_30["time"] = data.routes[0].legs[0].duration_in_traffic.value;
+        traffic.smyrna.in_30["route"] = data.routes[0].summary;
+        next();
+      });
+    });
+
+  request.end();
+
+});
+
+//Studio to Alpharetta NOW
+router.use('/traffic', function(req, res, next) {
+  var options = {
+    "method": "GET",
+    "hostname": "maps.googleapis.com",
+    "port": null,
+    "path": "https://maps.googleapis.com/maps/api/directions/json?origin=33.7775142,-84.3893051&destination=34.074606,-84.292316&departure_time=now&key=AIzaSyB1j-wYGG3Da_6Bi3HrZUYwv2agnrT2tEc"
+  }
+
+  var request = https.request(options, function (response) {
+    var chunks = [];
+
+    response.on("data", function (chunk) {
+      chunks.push(chunk);
+    });
+
+    response.on("end", function () {
+      var body = Buffer.concat(chunks);
+      var data = JSON.parse(body.toString());
+      traffic.alpharetta.now["time"] = data.routes[0].legs[0].duration_in_traffic.value;
+      traffic.alpharetta.now["route"] = data.routes[0].summary;
+      if(re_75.test(data.routes[0].summary)) {
+          traffic.alpharetta["img"] = "/I-75.png";
+        } else if(re_85.test(data.routes[0].summary)) {
+          traffic.alpharetta["img"] = "/I-85.png";
+        } else if(re_400.test(data.routes[0].summary)) {
+          traffic.alpharetta["img"] = "/GA-400.png";
+        } else {
+          traffic.alpharetta["img"] = "/street.png";
+        }
+      next();
+    });
+  });
+
+  request.end();
+
+});
+
+//get alphraretta in 30 min
+router.use('/traffic', function(req, res, next) {
+
+  var d = new Date();
+  var sec = (d.getTime()*1000) + (30*60);
+  var options = {
+      "method": "GET",
+      "hostname": "maps.googleapis.com",
+      "port": null,
+      "path": "/maps/api/directions/json?origin=33.7775142%2C-84.3893051&destination=34.074606,-84.292316&departure_time=" 
+          + sec + "&key=AIzaSyB1j-wYGG3Da_6Bi3HrZUYwv2agnrT2tEc"
+    };
+
+    var request = https.request(options, function (response) {
+      var chunks = [];
+
+      response.on("data", function (chunk) {
+        chunks.push(chunk);
+      });
+
+      response.on("end", function () {
+        var body = Buffer.concat(chunks);
+        var data = JSON.parse(body.toString());
+        traffic.alpharetta.in_30["time"] = data.routes[0].legs[0].duration_in_traffic.value;
+        traffic.alpharetta.in_30["route"] = data.routes[0].summary;
+        next();
+      });
+    });
+
+  request.end();
+
+});
+
+//Studio to Marietta NOW
+router.use('/traffic', function(req, res, next) {
+  var options = {
+    "method": "GET",
+    "hostname": "maps.googleapis.com",
+    "port": null,
+    "path": "https://maps.googleapis.com/maps/api/directions/json?origin=33.7775142,-84.3893051&destination=33.952775,-84.550418&departure_time=now&key=AIzaSyB1j-wYGG3Da_6Bi3HrZUYwv2agnrT2tEc"
+  }
+
+  var request = https.request(options, function (response) {
+    var chunks = [];
+
+    response.on("data", function (chunk) {
+      chunks.push(chunk);
+    });
+
+    response.on("end", function () {
+      var body = Buffer.concat(chunks);
+      var data = JSON.parse(body.toString());
+      traffic.marietta.now["time"] = data.routes[0].legs[0].duration_in_traffic.value;
+      traffic.marietta.now["route"] = data.routes[0].summary;
+      if(re_75.test(data.routes[0].summary)) {
+          traffic.marietta["img"] = "/I-75.png";
+        } else if(re_85.test(data.routes[0].summary)) {
+          traffic.marietta["img"] = "/I-85.png";
+        } else if(re_400.test(data.routes[0].summary)) {
+          traffic.marietta["img"] = "/GA-400.png";
+        } else {
+          traffic.marietta["img"] = "/street.png";
+        }
+      next();
+    });
+  });
+
+  request.end();
+
+});
+
+//get marietta in 30 min
+router.get('/traffic', function(req, res, next) {
+
+  var d = new Date();
+  var sec = (d.getTime()*1000) + (30*60);
+  var options = {
+      "method": "GET",
+      "hostname": "maps.googleapis.com",
+      "port": null,
+      "path": "/maps/api/directions/json?origin=33.7775142%2C-84.3893051&destination=33.952775,-84.550418&departure_time=" 
+          + sec + "&key=AIzaSyB1j-wYGG3Da_6Bi3HrZUYwv2agnrT2tEc"
+    };
+
+    var request = https.request(options, function (response) {
+      var chunks = [];
+
+      response.on("data", function (chunk) {
+        chunks.push(chunk);
+      });
+
+      response.on("end", function () {
+        var body = Buffer.concat(chunks);
+        var data = JSON.parse(body.toString());
+        traffic.marietta.in_30["time"] = data.routes[0].legs[0].duration_in_traffic.value;
+        traffic.marietta.in_30["route"] = data.routes[0].summary;
+        res.json(traffic);
+      });
+    });
 
   request.end();
 

@@ -16,7 +16,7 @@ h1 {
 	font-family:'HelveticaNeue-UltraLight', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif; 
 	color: white;
 	text-align: center;
-	font-size: 900%;
+	font-size: 6vw;
 }
 
 h2 {
@@ -24,7 +24,7 @@ h2 {
 	color: white;
 	text-align: center;
 	margin:0 !important;
-	font-size: 250%;
+	font-size: 1.3vw;
 	letter-spacing: 2px;
 }
 
@@ -33,7 +33,7 @@ h3 {
 	letter-spacing: 2px;
 	text-align: center; 
 	color: white;
-	font-size: 210%;
+	font-size: 1vw;
 	line-height: 150%;
 }
 
@@ -42,6 +42,7 @@ h4 {
 	color: white;
 	text-align: center;
 	letter-spacing: 2px;
+	font-size: 1vw;
 }
 
 h5 {
@@ -49,6 +50,7 @@ h5 {
 	color: white;
 	text-align: center;
 	letter-spacing: 2px;
+	font-size: 0.85vw;
 }
 
 #clock-outer div {
@@ -58,7 +60,7 @@ h5 {
 
 #clock h1 {
 	text-align: right !important;
-	font-size: 700% !important;
+	font-size: 4vw !important;
 	font-family: 'HelveticaNeue-Thin', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif; 
 	color: #575759 !important;
 }
@@ -136,7 +138,7 @@ h5 {
 }
 
 #traffic-div h2{
-	font-size: 400%;
+	font-size: 4vw;
 }
 
 .traffic-size {
@@ -145,8 +147,8 @@ h5 {
 
 .traffic-size img {
 	display:block;
-	max-width: 95%;
-    max-height: auto;
+	width: auto;
+    max-height: 95%;
     padding-left: 25%;
     margin-top: 2%;
     margin-bottom: 2%
@@ -158,6 +160,7 @@ h5 {
 
 .traffic-size h5 {
 	margin: 0 !important;
+	font-size: 0.85vw !important;
 }
 
 .left-align-div h5{
@@ -199,7 +202,7 @@ h5 {
 
 #w-today h3 {
 	margin-top: 15%;
-	font-size: 300% !important;
+	font-size: 2vw !important;
 }
 
 #w-other div {
